@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SITE </title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* === Body & general styles === */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffe6f0, #d0f0ff);
+      font-family: 'Quicksand', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-align: center;
+    }
+
+  /* === Loading screen === */
+  #loadingScreen {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 9999;
+  }
+
+  #loadingScreen img {
+    width: 200px;
+    height: auto;
+  }
+
+  /* === Password screen === */
+  #passwordScreen {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: #d0f0ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 9998;
+  }
+
+  #passwordScreen input {
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #ff69b4;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  #passwordScreen button {
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    background: #ff69b4;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* === Main page hidden initially === */
+  #mainContent {
+    display: none;
+  }
+
+  /* === Teddy page styles (your final version) === */
+  .teddy-container {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+  }
+
+  .teddy {
+    width: 400px; /* bigger teddy */
+    height: auto;
+    animation: float 3s ease-in-out infinite;
+    display: block;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .speech {
+    position: absolute;
+    top: -60px;
+    right: -140px;
+    width: 250px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .speech-blob {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .speech-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    color: black;
+    font-family: 'Pacifico', cursive;
+    font-size: 22px;
+    line-height: 1.2;
+    text-align: center;
+    margin: 0;
+  }
+
+  .gif-container {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  #yesGif { width: 120px; cursor:pointer; transition: transform 0.3s ease; }
+  #yesGif:hover { transform: scale(2.1) rotate(-5deg); }
+  #noGif { height: 60px; cursor:pointer; transition: transform 0.3s ease; }
+  #noGif:hover { transform: scale(1.1) rotate(3deg); }
+
+  .yayText {
+    font-family: 'Pacifico', cursive;
+    color: #ff69b4;
+    font-size: 34px;
+    margin-top: 10px;
+    animation: pop 0.8s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <img id="loadingGif" src="https://s12.gifyu.com/images/b3UxB.gif" alt="Loading GIF">
+  <p id="loadingText"></p>
+</div>
+
+<!-- Password Screen -->
+<div id="passwordScreen">
+  <h2>ENTER THE PASSWORD!</h2>
+  <input type="text" id="passwordInput" placeholder="Type password here">
+  <button id="passwordBtn">SUBMIT</button>
+  <p id="wrongMsg" style="color:red; display:none;">NO. TRY AGAIN.</p>
+</div>
+
+<!-- Main Teddy Page -->
+<div id="mainContent">
+
+  <div class="teddy-container">
+    <img src="https://s12.gifyu.com/images/b3ULP.gif" alt="Teddy" class="teddy" id="teddy">
+    <div class="speech">
+      <img src="https://s12.gifyu.com/images/b3UsU.png" alt="Speech Blob" class="speech-blob">
+      <h1 class="speech-text">
+        Can I steal <br>
+        your heart—uh, <br>
+        I mean cake?
+      </h1>
+    </div>
+  </div>
+
+  <div class="gif-container">
+    <img src="https://s12.gifyu.com/images/b3UpF.gif" alt="Yes Teddy" id="yesGif">
+    <img src="https://s12.gifyu.com/images/b3UxE.png" alt="No Teddy" id="noGif">
+  </div>
+
+</div>
+
+<script>
+  const loadingScreen = document.getElementById('loadingScreen');
+  const passwordScreen = document.getElementById('passwordScreen');
+  const mainContent = document.getElementById('mainContent');
+  const passwordInput = document.getElementById('passwordInput');
+  const passwordBtn = document.getElementById('passwordBtn');
+  const wrongMsg = document.getElementById('wrongMsg');
+
+  const loadingGif = document.getElementById('loadingGif');
+  const loadingText = document.getElementById('loadingText');
+
+  const correctPassword = "your name"; // set your password here
+
+  // Sequence timings (in milliseconds)
+  const gifSequence = [
+    { src: 'https://s12.gifyu.com/images/b3UxB.gif', duration: 50000, text: '' },
+    { src: 'https://s12.gifyu.com/images/b3UKI.gif', duration: 3000, text: 'still loading. . .' },
+    { src: 'https://s12.gifyu.com/images/b3UHr.gif', duration: 5000, text: '(pov)' }
+  ];
+
+  let index = 0;
+
+  function showNextGif() {
+    if (index >= gifSequence.length) {
+      // All GIFs done, show password screen
+      loadingScreen.style.display = 'none';
+      passwordScreen.style.display = 'flex';
+      return;
+    }
+
+    const gif = gifSequence[index];
+
+    // Preload image to prevent flicker
+    const img = new Image();
+    img.src = gif.src;
+    img.onload = () => {
+      loadingGif.src = gif.src;
+      loadingText.textContent = gif.text;
+
+      setTimeout(() => {
+        index++;
+        showNextGif();
+      }, gif.duration);
+    };
+  }
+
+  showNextGif();
+
+  let wrongAttempts = 0;  // Track number of wrong attempts
+
+// Password check
+passwordBtn.addEventListener('click', () => {
+  if(passwordInput.value.trim().toLowerCase() === correctPassword) {
+    passwordScreen.style.display = 'none';
+    mainContent.style.display = 'block';
+  } else {
+    wrongAttempts++;
+    wrongMsg.style.display = 'block';
+
+    // Hidden messages after wrong attempts
+    if (wrongAttempts === 2) {
+      const hiddenMsg = document.createElement('p');
+      hiddenMsg.textContent = "You almost got it!!!!!! jk.";
+      hiddenMsg.style.color = 'green';
+      passwordScreen.appendChild(hiddenMsg);
+    }
+    if (wrongAttempts === 3) {
+      const hiddenMsg2 = document.createElement('p');
+      hiddenMsg2.textContent = "Hint: The password is.. your name?";
+      hiddenMsg2.style.color = 'black';
+      passwordScreen.appendChild(hiddenMsg2);
+    }
+    if (wrongAttempts === 4) {
+      const hiddenMsg2 = document.createElement('p');
+      hiddenMsg2.textContent = "use common sense, buddhu.";
+      hiddenMsg2.style.color = 'black';
+      passwordScreen.appendChild(hiddenMsg2);
+    }
+  }
+});
+
+  // Teddy Yes/No functionality
+  const yesGif = document.getElementById('yesGif');
+  const noGif = document.getElementById('noGif');
+  const teddy = document.getElementById('teddy');
+  const speech = document.querySelector('.speech');
+  const container = document.querySelector('.gif-container');
+
+  yesGif.addEventListener('click', () => {
+    speech.style.display = 'none';
+    container.style.display = 'none';
+    teddy.src = 'https://s12.gifyu.com/images/b3Ux7.gif'; // hugging teddy
+    teddy.style.width = '400px';
+    teddy.style.animation = 'none';
+    document.body.style.background = 'white';
+
+    const yayText = document.createElement('h1');
+    yayText.textContent = 'yayy!! 💖';
+    yayText.classList.add('yayText');
+    document.body.appendChild(yayText);
+  });
+
+  noGif.addEventListener('mouseover', () => {
+    const x = Math.random() * (window.innerWidth - noGif.offsetWidth);
+    const y = Math.random() * (window.innerHeight - noGif.offsetHeight);
+    noGif.style.position = 'absolute';
+    noGif.style.left = `${x}px`;
+    noGif.style.top = `${y}px`;
+  });
+</script>
+
+</body>
+</html>
